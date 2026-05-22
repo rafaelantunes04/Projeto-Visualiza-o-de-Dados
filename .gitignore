@@ -1,2 +1,4 @@
 data/clean/*
+!data/clean/.gitkeep
+
 __pycache__/
