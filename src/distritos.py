@@ -154,10 +154,14 @@ DICIONARIO_DISTRITOS = {
 }
 
 
-def agregar_por_distrito(df: pd.DataFrame, coluna_territorio: str = "Territórios") -> pd.DataFrame:
+def agregar_por_distrito(
+    df: pd.DataFrame,
+    coluna_territorio: str = "Territórios",
+    agregacao: str = "sum",
+) -> pd.DataFrame:
     """
     Recebe um DataFrame com uma coluna de municípios e colunas numéricas,
-    substitui os municípios pelo distrito correspondente e soma os valores.
+    substitui os municípios pelo distrito correspondente e agrega os valores.
 
     Municípios não reconhecidos pelo dicionário são ignorados (removidos do resultado)
     e listados no terminal como aviso.
@@ -165,10 +169,14 @@ def agregar_por_distrito(df: pd.DataFrame, coluna_territorio: str = "Território
     Parâmetros:
         df                — DataFrame de entrada
         coluna_territorio — nome da coluna que contém os municípios (default: "Territórios")
+        agregacao         — função de agregação: "sum" (default) ou "mean"
 
     Retorna:
-        DataFrame com uma linha por distrito e os valores somados.
+        DataFrame com uma linha por distrito e os valores agregados.
     """
+    if agregacao not in ("sum", "mean"):
+        raise ValueError(f"agregacao deve ser 'sum' ou 'mean', recebeu: {agregacao!r}")
+
     df = df.copy()
 
     # Mapeia cada município para o seu distrito
@@ -185,7 +193,7 @@ def agregar_por_distrito(df: pd.DataFrame, coluna_territorio: str = "Território
 
     resultado = (
         df.groupby("Distrito")[colunas_numericas]
-        .sum()
+        .agg(agregacao)
         .reset_index()
         .rename(columns={"Distrito": coluna_territorio})
     )
